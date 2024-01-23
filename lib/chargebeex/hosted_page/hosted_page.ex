@@ -1,9 +1,8 @@
 defmodule Chargebeex.HostedPage do
   use TypedStruct
 
-  use Chargebeex.Resource,
-    resource: "hosted_page",
-    only: [:retrieve, :list]
+  @resource "hosted_page"
+  use Chargebeex.Resource, resource: @resource, only: [:retrieve, :list]
 
   alias Chargebeex.Client
   alias Chargebeex.Builder
@@ -30,10 +29,22 @@ defmodule Chargebeex.HostedPage do
   use ExConstructor, :build
 
   def collect_now(params, opts \\ []) do
-    with path <- Chargebeex.Action.resource_path_generic_without_id("hosted_page", "collect_now"),
+    with path <- Chargebeex.Action.resource_path_generic_without_id(@resource, "collect_now"),
          {:ok, _status_code, _headers, content} <- Client.post(path, params, opts),
          builded <- Builder.build(content) do
-      {:ok, Map.get(builded, "hosted_page")}
+      {:ok, Map.get(builded, @resource)}
+    end
+  end
+
+  def checkout_existing_for_items(params, opts \\ []) do
+    with path <-
+           Chargebeex.Action.resource_path_generic_without_id(
+             @resource,
+             "checkout_existing_for_items"
+           ),
+         {:ok, _status_code, _headers, content} <- Client.post(path, params, opts),
+         builded <- Builder.build(content) do
+      {:ok, Map.get(builded, @resource)}
     end
   end
 end
