@@ -216,4 +216,78 @@ defmodule Chargebeex.HostedPageTest do
       assert {:ok, %HostedPage{}} = HostedPage.checkout_existing_for_items(%{})
     end
   end
+
+  describe "checkout_new_for_items" do
+    test "with bad authentication should fail" do
+      unauthorized = Common.unauthorized()
+
+      expect(
+        Chargebeex.HTTPClientMock,
+        :post,
+        fn url, body, headers ->
+          assert url ==
+                   "https://test-namespace.chargebee.com/api/v2/hosted_pages/checkout_new_for_items"
+
+          assert headers == [
+                   {"Authorization", "Basic dGVzdF9jaGFyZ2VlYmVlX2FwaV9rZXk6"},
+                   {"Content-Type", "application/x-www-form-urlencoded"}
+                 ]
+
+          assert body ==
+                   "subscription_items[item_price_id][0]=day-pass-USD&subscription_items[item_price_id][1]=basic-USD&subscription_items[quantity][1]=1&subscription_items[unit_price][0]=100"
+
+          {:ok, 401, [], Jason.encode!(unauthorized)}
+        end
+      )
+
+      assert {:error, 401, [], ^unauthorized} =
+               HostedPage.checkout_new_for_items(%{
+                 subscription_items: [
+                   %{
+                     item_price_id: "day-pass-USD",
+                     unit_price: 100
+                   },
+                   %{
+                     item_price_id: "basic-USD",
+                     quantity: 1
+                   }
+                 ]
+               })
+    end
+
+    test "with no param, no offset should succeed" do
+      expect(
+        Chargebeex.HTTPClientMock,
+        :post,
+        fn url, body, headers ->
+          assert url ==
+                   "https://test-namespace.chargebee.com/api/v2/hosted_pages/checkout_new_for_items"
+
+          assert headers == [
+                   {"Authorization", "Basic dGVzdF9jaGFyZ2VlYmVlX2FwaV9rZXk6"},
+                   {"Content-Type", "application/x-www-form-urlencoded"}
+                 ]
+
+          assert body ==
+                   "subscription_items[item_price_id][0]=day-pass-USD&subscription_items[item_price_id][1]=basic-USD&subscription_items[quantity][1]=1&subscription_items[unit_price][0]=100"
+
+          {:ok, 200, [], Jason.encode!(%{hosted_page: %{}})}
+        end
+      )
+
+      assert {:ok, %HostedPage{}} =
+               HostedPage.checkout_new_for_items(%{
+                 subscription_items: [
+                   %{
+                     item_price_id: "day-pass-USD",
+                     unit_price: 100
+                   },
+                   %{
+                     item_price_id: "basic-USD",
+                     quantity: 1
+                   }
+                 ]
+               })
+    end
+  end
 end

@@ -47,4 +47,16 @@ defmodule Chargebeex.HostedPage do
       {:ok, Map.get(builded, @resource)}
     end
   end
+
+  def checkout_new_for_items(params, opts \\ []) do
+    with path <-
+           Chargebeex.Action.resource_path_generic_without_id(
+             @resource,
+             "checkout_new_for_items"
+           ),
+         {:ok, _status_code, _headers, content} <- Client.post(path, params, opts),
+         builded <- Builder.build(content) do
+      {:ok, Map.get(builded, @resource)}
+    end
+  end
 end
