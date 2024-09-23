@@ -201,4 +201,83 @@ defmodule Chargebeex.SubscriptionTest do
                })
     end
   end
+
+  describe "change_term_end" do
+    test "with bad authentication should fail" do
+      unauthorized = Common.unauthorized()
+
+      expect(
+        Chargebeex.HTTPClientMock,
+        :post,
+        fn url, data, headers ->
+          assert url ==
+                   "https://test-namespace.chargebee.com/api/v2/subscriptions/foobar/change_term_end"
+
+          assert headers == [
+                   {"Authorization", "Basic dGVzdF9jaGFyZ2VlYmVlX2FwaV9rZXk6"},
+                   {"Content-Type", "application/x-www-form-urlencoded"}
+                 ]
+
+          assert data == "current_term_end=1613413800"
+
+          {:ok, 401, [], Jason.encode!(unauthorized)}
+        end
+      )
+
+      assert {:error, 401, [], ^unauthorized} =
+               Chargebeex.Subscription.change_term_end("foobar", %{
+                 current_term_end: 1_613_413_800
+               })
+    end
+
+    test "with invalid data should fail" do
+      bad_request = Common.bad_request()
+
+      expect(
+        Chargebeex.HTTPClientMock,
+        :post,
+        fn url, data, headers ->
+          assert url ==
+                   "https://test-namespace.chargebee.com/api/v2/subscriptions/foobar/change_term_end"
+
+          assert headers == [
+                   {"Authorization", "Basic dGVzdF9jaGFyZ2VlYmVlX2FwaV9rZXk6"},
+                   {"Content-Type", "application/x-www-form-urlencoded"}
+                 ]
+
+          assert data == ""
+
+          {:ok, 400, [], Jason.encode!(bad_request)}
+        end
+      )
+
+      assert {:error, 400, [], ^bad_request} =
+               Chargebeex.Subscription.change_term_end("foobar", %{})
+    end
+
+    test "with valid data should succeed" do
+      expect(
+        Chargebeex.HTTPClientMock,
+        :post,
+        fn url, data, headers ->
+          assert url ==
+                   "https://test-namespace.chargebee.com/api/v2/subscriptions/foobar/change_term_end"
+
+          assert headers == [
+                   {"Authorization", "Basic dGVzdF9jaGFyZ2VlYmVlX2FwaV9rZXk6"},
+                   {"Content-Type", "application/x-www-form-urlencoded"}
+                 ]
+
+          assert data == "current_term_end=1613413800"
+
+          {:ok, 200, [], Jason.encode!(%{customer: %{}, subscription: %{}})}
+        end
+      )
+
+      assert {:ok, %Subscription{}} =
+               Chargebeex.Subscription.change_term_end("foobar", %{
+                 current_term_end: 1_613_413_800
+               })
+    end
+  end
 end

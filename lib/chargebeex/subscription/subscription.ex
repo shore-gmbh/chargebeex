@@ -153,4 +153,28 @@ defmodule Chargebeex.Subscription do
       opts
     )
   end
+
+  @doc """
+  Changes the subscription's current term end date
+
+  ## Examples
+
+      iex> Chargebeex.Subscription.change_term_end("169ljDT1Op0yuxET", %{
+                 term_ends_at: 1613413800
+               })
+      {:ok, %Chargebeex.Subscription{
+          current_term_end: 1613413800,
+          ...
+        }}
+  """
+  def change_term_end(subscription_id, params, opts \\ []) do
+    generic_action(
+      :post,
+      @resource,
+      "change_term_end",
+      subscription_id,
+      params,
+      opts
+    )
+  end
 end
