@@ -2,7 +2,7 @@ defmodule Chargebeex.Subscription do
   use TypedStruct
 
   @resource "subscription"
-  use Chargebeex.Resource, resource: @resource, only: [:list, :retrieve, :update]
+  use Chargebeex.Resource, resource: @resource, only: [:list, :retrieve, :update, :delete]
 
   @typedoc """
   "future" | "in_trial" | "active" | "non_renewing" | "paused" | "cancelled"
@@ -82,6 +82,7 @@ defmodule Chargebeex.Subscription do
     field :free_period_unit, period_unit()
     field :create_pending_invoices, boolean()
     field :metadata, map(), default: %{}
+    field :resources, map(), default: %{}
     field :custom_fields, map(), default: %{}
     field :auto_close_invoices, boolean()
     field :business_entity_id, String.t()

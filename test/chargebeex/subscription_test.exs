@@ -31,7 +31,7 @@ defmodule Chargebeex.SubscriptionTest do
       )
 
       assert {:error, 401, [], ^unauthorized} =
-               Chargebeex.Subscription.create_with_items("foobar", %{})
+               Subscription.create_with_items("foobar", %{})
     end
 
     test "with invalid data should fail" do
@@ -60,7 +60,7 @@ defmodule Chargebeex.SubscriptionTest do
       )
 
       assert {:error, 400, [], ^bad_request} =
-               Chargebeex.Subscription.create_with_items("foobar", %{
+               Subscription.create_with_items("foobar", %{
                  subscription_items: [
                    %{
                      item_price_id: "invalid_item_price_id",
@@ -94,7 +94,7 @@ defmodule Chargebeex.SubscriptionTest do
       )
 
       assert {:ok, %Subscription{}} =
-               Chargebeex.Subscription.create_with_items("foobar", %{
+               Subscription.create_with_items("foobar", %{
                  subscription_items: [
                    %{
                      item_price_id: "item_price_id",
@@ -128,7 +128,7 @@ defmodule Chargebeex.SubscriptionTest do
       )
 
       assert {:error, 401, [], ^unauthorized} =
-               Chargebeex.Subscription.update_for_items("foobar", %{})
+               Subscription.update_for_items("foobar", %{})
     end
 
     test "with invalid data should fail" do
@@ -157,7 +157,7 @@ defmodule Chargebeex.SubscriptionTest do
       )
 
       assert {:error, 400, [], ^bad_request} =
-               Chargebeex.Subscription.update_for_items("foobar", %{
+               Subscription.update_for_items("foobar", %{
                  subscription_items: [
                    %{
                      item_price_id: "invalid_item_price_id",
@@ -191,7 +191,7 @@ defmodule Chargebeex.SubscriptionTest do
       )
 
       assert {:ok, %Subscription{}} =
-               Chargebeex.Subscription.update_for_items("foobar", %{
+               Subscription.update_for_items("foobar", %{
                  subscription_items: [
                    %{
                      item_price_id: "item_price_id",
@@ -199,6 +199,75 @@ defmodule Chargebeex.SubscriptionTest do
                    }
                  ]
                })
+    end
+  end
+
+  describe "delete" do
+    test "with bad authentication should fail" do
+      unauthorized = Common.unauthorized()
+
+      expect(
+        Chargebeex.HTTPClientMock,
+        :post,
+        fn url, body, headers ->
+          assert url == "https://test-namespace.chargebee.com/api/v2/subscriptions/1234/delete"
+
+          assert headers == [
+                   {"Authorization", "Basic dGVzdF9jaGFyZ2VlYmVlX2FwaV9rZXk6"},
+                   {"Content-Type", "application/x-www-form-urlencoded"}
+                 ]
+
+          assert body == ""
+
+          {:ok, 401, [], Jason.encode!(unauthorized)}
+        end
+      )
+
+      assert {:error, 401, [], ^unauthorized} = Subscription.delete("1234")
+    end
+
+    test "with resource not found should fail" do
+      not_found = Common.not_found()
+
+      expect(
+        Chargebeex.HTTPClientMock,
+        :post,
+        fn url, body, headers ->
+          assert url == "https://test-namespace.chargebee.com/api/v2/subscriptions/1234/delete"
+
+          assert headers == [
+                   {"Authorization", "Basic dGVzdF9jaGFyZ2VlYmVlX2FwaV9rZXk6"},
+                   {"Content-Type", "application/x-www-form-urlencoded"}
+                 ]
+
+          assert body == ""
+
+          {:ok, 404, [], Jason.encode!(not_found)}
+        end
+      )
+
+      assert {:error, 404, [], ^not_found} = Subscription.delete("1234")
+    end
+
+    test "with resource found should succeed" do
+      expect(
+        Chargebeex.HTTPClientMock,
+        :post,
+        fn url, body, headers ->
+          assert url == "https://test-namespace.chargebee.com/api/v2/subscriptions/1234/delete"
+
+          assert headers == [
+                   {"Authorization", "Basic dGVzdF9jaGFyZ2VlYmVlX2FwaV9rZXk6"},
+                   {"Content-Type", "application/x-www-form-urlencoded"}
+                 ]
+
+          assert body == ""
+
+          {:ok, 200, [], Jason.encode!(%{subscription: %{}})}
+        end
+      )
+
+      assert {:ok, %Subscription{}} == Subscription.delete("1234")
     end
   end
 end
