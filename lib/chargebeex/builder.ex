@@ -15,6 +15,7 @@ defmodule Chargebeex.Builder do
     PortalSession,
     Subscription,
     SubscriptionEntitlement,
+    Transaction,
     Item,
     ItemPrice,
     Quote,
@@ -79,6 +80,9 @@ defmodule Chargebeex.Builder do
 
   def build_resource("subscription_entitlement", params),
     do: SubscriptionEntitlement.build(params)
+
+  def build_resource("transaction", params),
+    do: Transaction.build(params)
 
   def build_resource(_resource, params), do: params
 end
