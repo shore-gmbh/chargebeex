@@ -41,5 +41,26 @@ defmodule Chargebeex.Builder.ItemPriceTest do
       assert item_price.status == Map.get(params, "status")
       assert item_price.updated_at == Map.get(params, "updated_at")
     end
+
+    test "should handle custom fields" do
+      item_price =
+        ItemPriceFixture.retrieve()
+        |> Jason.decode!()
+        |> Map.get("item_price")
+        |> Map.merge(%{
+          "cf_foo" => "baz",
+          "cf_bar" => "baz"
+        })
+
+      assert %ItemPrice{
+               custom_fields: %{
+                 "cf_foo" => "baz",
+                 "cf_bar" => "baz"
+               }
+             } =
+               %{"item_price" => item_price}
+               |> Builder.build()
+               |> Map.get("item_price")
+    end
   end
 end
