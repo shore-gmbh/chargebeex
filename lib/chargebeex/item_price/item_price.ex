@@ -75,10 +75,17 @@ defmodule Chargebeex.ItemPrice do
     field :show_description_in_quotes, boolean()
     field :is_taxable, boolean(), default: true
     field :metadata, map(), default: %{}
+    field :custom_fields, map(), default: %{}
     field :tiers, map(), default: %{}
     field :tax_detail, map(), default: %{}
     field :accounting_detail, map(), default: %{}
   end
 
   use ExConstructor, :build
+
+  def build(raw_data) do
+    raw_data
+    |> super()
+    |> Chargebeex.Resource.add_custom_fields(raw_data)
+  end
 end
