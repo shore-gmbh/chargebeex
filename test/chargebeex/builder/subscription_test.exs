@@ -45,6 +45,7 @@ defmodule Chargebeex.Builder.SubscriptionTest do
       assert subscription.current_term_start == Map.get(params, "current_term_start")
       assert subscription.customer_id == Map.get(params, "customer_id")
       assert subscription.deleted == Map.get(params, "deleted")
+      assert subscription.discounts == Map.get(params, "discounts")
       assert subscription.due_invoices_count == Map.get(params, "due_invoices_count")
       assert subscription.due_since == Map.get(params, "due_since")
       assert subscription.has_scheduled_changes == Map.get(params, "has_scheduled_changes")

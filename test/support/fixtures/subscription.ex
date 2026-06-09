@@ -13,6 +13,26 @@ defmodule Chargebeex.Fixtures.Subscription do
         "current_term_start": 1612890938,
         "customer_id": "__test__8asukSOXe0QYSR",
         "deleted": false,
+        "discounts": [
+            {
+                "id": "__test__KyVmqWSHMbJxp2",
+                "name": "__test__KyVmqWSHMbJxp2",
+                "invoice_name": "10% Off",
+                "percentage": 10,
+                "duration_type": "limited_period",
+                "period": 3,
+                "period_unit": "month",
+                "apply_on": "specific_item_price",
+                "item_price_id": "plan1",
+                "included_in_mrr": "true",
+                "created_at": 1605792731,
+                "updated_at": 1605792731,
+                "resource_version": 1605792731000,
+                "applied_count": 1,
+                "object": "discounts",
+                "apply_till": 1599831828
+            }
+        ],
         "due_invoices_count": 1,
         "due_since": 1612890938,
         "has_scheduled_changes": false,

@@ -89,6 +89,7 @@ defmodule Chargebeex.Subscription do
     field :item_tiers, list()
     field :charged_items, list()
     field :coupons, list()
+    field :discounts, list()
     field :shipping_address, map(), default: %{}
     field :referral_info, map(), default: %{}
     field :contract_term, map(), default: %{}
