@@ -83,7 +83,17 @@ defmodule Chargebeex.Action do
   end
 
   def resource_base_path(resource) do
-    "/#{resource}s"
+    "/#{pluralize(resource)}"
+  end
+
+  # Some Chargebee resources have irregular plural forms that cannot be built by
+  # simply appending an "s" to the resource name.
+  @irregular_plurals %{
+    "business_entity" => "business_entities"
+  }
+
+  defp pluralize(resource) do
+    Map.get(@irregular_plurals, resource, "#{resource}s")
   end
 
   def resource_path(resource, id) do
