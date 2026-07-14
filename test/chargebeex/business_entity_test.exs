@@ -90,5 +90,38 @@ defmodule Chargebeex.BusinessEntityTest do
                  reason_codes: ["Correction"]
                })
     end
+
+    test "handles a list response (real Chargebee shape for transfers endpoint)" do
+      transfer_record = %{
+        "id" => "BTLtRyVPMxLF0aPb",
+        "object" => "business_entity_transfer",
+        "active_resource_id" => "11111111-2222-3333-4444-555555555555",
+        "resource_type" => "customer",
+        "resource_id" => "BTLtRyVPMxLFlaPi",
+        "source_business_entity_id" => "BTcXXMTqZddGWfc",
+        "destination_business_entity_id" => "AzXY00faketity01",
+        "reason_code" => "correction",
+        "created_at" => 1_784_049_846
+      }
+
+      expect(
+        Chargebeex.HTTPClientMock,
+        :post,
+        fn _url, _body, _headers ->
+          {:ok, 200, [],
+           Jason.encode!(%{
+             "list" => [%{"business_entity_transfer" => transfer_record}],
+             "next_offset" => nil
+           })}
+        end
+      )
+
+      assert {:ok, [_ | _], %{"next_offset" => nil}} =
+               BusinessEntity.transfer(%{
+                 active_resource_ids: ["11111111-2222-3333-4444-555555555555"],
+                 destination_business_entity_ids: ["AzXY00faketity01"],
+                 reason_codes: ["Correction"]
+               })
+    end
   end
 end
