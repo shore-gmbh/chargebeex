@@ -53,9 +53,8 @@ defmodule Chargebeex.Action do
 
   def generic_action_without_id(verb, resource, action, params \\ %{}, opts \\ []) do
     with path <- resource_path_generic_without_id(resource, action),
-         {:ok, _status_code, _headers, content} <- apply(Client, verb, [path, params, opts]),
-         builded <- Builder.build(content) do
-      {:ok, put_resources(builded, resource)}
+         {:ok, _status_code, _headers, content} <- apply(Client, verb, [path, params, opts]) do
+      build_response(content, resource)
     end
   end
 
@@ -69,10 +68,16 @@ defmodule Chargebeex.Action do
       ) do
     with path <- nested_resource_path_generic_without_id(nested_to, action),
          {:ok, _status_code, _headers, content} <- apply(Client, verb, [path, params, opts]) do
-      case Builder.build(content) do
-        {builded, metadata} -> {:ok, Enum.map(builded, &put_resources(&1, resource)), metadata}
-        builded -> {:ok, put_resources(builded, resource)}
-      end
+      build_response(content, resource)
+    end
+  end
+
+  # Builds the API response, handling both single-resource maps and paginated
+  # list responses (which `Builder.build/1` returns as a `{list, metadata}` tuple).
+  defp build_response(content, resource) do
+    case Builder.build(content) do
+      {builded, metadata} -> {:ok, Enum.map(builded, &put_resources(&1, resource)), metadata}
+      builded -> {:ok, put_resources(builded, resource)}
     end
   end
 
@@ -83,7 +88,17 @@ defmodule Chargebeex.Action do
   end
 
   def resource_base_path(resource) do
-    "/#{resource}s"
+    "/#{pluralize(resource)}"
+  end
+
+  # Some Chargebee resources have irregular plural forms that cannot be built by
+  # simply appending an "s" to the resource name.
+  @irregular_plurals %{
+    "business_entity" => "business_entities"
+  }
+
+  defp pluralize(resource) do
+    Map.get(@irregular_plurals, resource, "#{resource}s")
   end
 
   def resource_path(resource, id) do

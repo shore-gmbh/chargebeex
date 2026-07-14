@@ -4,6 +4,7 @@ defmodule Chargebeex.Builder do
     AttachedItem,
     BankAccount,
     BillingAddress,
+    BusinessEntity,
     Card,
     Customer,
     CustomerEntitlement,
@@ -55,6 +56,7 @@ defmodule Chargebeex.Builder do
   def build_resource(%{"quoted_subscription" => params}), do: QuotedSubscription.build(params)
   def build_resource(%{"usage" => params}), do: Usage.build(params)
   def build_resource(%{"attached_item" => params}), do: AttachedItem.build(params)
+  def build_resource(%{"business_entity" => params}), do: BusinessEntity.build(params)
 
   def build_resource(%{"subscription_entitlement" => params}),
     do: SubscriptionEntitlement.build(params)
@@ -77,6 +79,7 @@ defmodule Chargebeex.Builder do
   def build_resource("quoted_subscription", params), do: QuotedSubscription.build(params)
   def build_resource("usage", params), do: Usage.build(params)
   def build_resource("attached_item", params), do: AttachedItem.build(params)
+  def build_resource("business_entity", params), do: BusinessEntity.build(params)
 
   def build_resource("subscription_entitlement", params),
     do: SubscriptionEntitlement.build(params)

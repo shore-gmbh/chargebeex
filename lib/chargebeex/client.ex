@@ -153,22 +153,26 @@ defmodule Chargebeex.Client do
       data
       |> Enum.map(&transform_arrays_for_chargebee/1)
 
-    transformed_list_data
-    |> Enum.map(fn item ->
-      case item do
-        map_item when is_map(map_item) ->
-          Map.keys(map_item)
+    if Enum.all?(transformed_list_data, &is_map/1) do
+      transform_list_of_objects(transformed_list_data)
+    else
+      transform_list_of_scalars(transformed_list_data)
+    end
+  end
 
-        _ ->
-          raise "Unsupported data: lists should contains objects only"
-      end
-    end)
+  def transform_arrays_for_chargebee(data), do: data
+
+  # Turns a list of objects into an indexed map per key, so that
+  # `[%{a: 1}, %{a: 2}]` under key `foo` gets encoded as `foo[a][0]=1&foo[a][1]=2`.
+  defp transform_list_of_objects(list_data) do
+    list_data
+    |> Enum.map(&Map.keys/1)
     |> List.flatten()
     |> Enum.uniq()
     |> Enum.map(fn key ->
       {
         key,
-        transformed_list_data
+        list_data
         |> Enum.with_index()
         |> Enum.map(fn {item, index} -> {index, item[key]} end)
         |> Enum.filter(fn {_index, item} -> !is_nil(item) end)
@@ -178,5 +182,12 @@ defmodule Chargebeex.Client do
     |> Enum.into(%{})
   end
 
-  def transform_arrays_for_chargebee(data), do: data
+  # Turns a list of scalars into an indexed map, so that `["a", "b"]` under key
+  # `foo` gets encoded as `foo[0]=a&foo[1]=b`.
+  defp transform_list_of_scalars(list_data) do
+    list_data
+    |> Enum.with_index()
+    |> Enum.map(fn {item, index} -> {index, item} end)
+    |> Enum.into(%{})
+  end
 end
