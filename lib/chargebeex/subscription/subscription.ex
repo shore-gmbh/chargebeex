@@ -155,4 +155,34 @@ defmodule Chargebeex.Subscription do
       opts
     )
   end
+
+  @doc """
+  Reactivates a cancelled Subscription.
+
+  ## Examples
+
+      iex> Chargebeex.Subscription.reactivate("169ljDT1Op0yuxET")
+      {:ok, %Chargebeex.Subscription{
+          id: "169ljDT1Op0yuxET",
+          status: "active",
+          ...
+        }}
+
+      iex> Chargebeex.Subscription.reactivate("169ljDT1Op0yuxET", %{trial_end: 1717977000})
+      {:ok, %Chargebeex.Subscription{
+          id: "169ljDT1Op0yuxET",
+          status: "in_trial",
+          ...
+        }}
+  """
+  def reactivate(subscription_id, params \\ %{}, opts \\ []) do
+    generic_action(
+      :post,
+      @resource,
+      "reactivate",
+      subscription_id,
+      params,
+      opts
+    )
+  end
 end

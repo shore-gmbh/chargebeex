@@ -452,4 +452,106 @@ defmodule Chargebeex.SubscriptionTest do
                })
     end
   end
+
+  describe "reactivate" do
+    test "with bad authentication should fail" do
+      unauthorized = Common.unauthorized()
+
+      expect(
+        Chargebeex.HTTPClientMock,
+        :post,
+        fn url, data, headers ->
+          assert url ==
+                   "https://test-namespace.chargebee.com/api/v2/subscriptions/foobar/reactivate"
+
+          assert headers == [
+                   {"Authorization", "Basic dGVzdF9jaGFyZ2VlYmVlX2FwaV9rZXk6"},
+                   {"Content-Type", "application/x-www-form-urlencoded"}
+                 ]
+
+          assert data == ""
+
+          {:ok, 401, [], Jason.encode!(unauthorized)}
+        end
+      )
+
+      assert {:error, 401, [], ^unauthorized} = Chargebeex.Subscription.reactivate("foobar")
+    end
+
+    test "with resource not found should fail" do
+      not_found = Common.not_found()
+
+      expect(
+        Chargebeex.HTTPClientMock,
+        :post,
+        fn url, data, headers ->
+          assert url ==
+                   "https://test-namespace.chargebee.com/api/v2/subscriptions/foobar/reactivate"
+
+          assert headers == [
+                   {"Authorization", "Basic dGVzdF9jaGFyZ2VlYmVlX2FwaV9rZXk6"},
+                   {"Content-Type", "application/x-www-form-urlencoded"}
+                 ]
+
+          assert data == ""
+
+          {:ok, 404, [], Jason.encode!(not_found)}
+        end
+      )
+
+      assert {:error, 404, [], ^not_found} = Chargebeex.Subscription.reactivate("foobar")
+    end
+
+    test "with no params should succeed" do
+      expect(
+        Chargebeex.HTTPClientMock,
+        :post,
+        fn url, data, headers ->
+          assert url ==
+                   "https://test-namespace.chargebee.com/api/v2/subscriptions/foobar/reactivate"
+
+          assert headers == [
+                   {"Authorization", "Basic dGVzdF9jaGFyZ2VlYmVlX2FwaV9rZXk6"},
+                   {"Content-Type", "application/x-www-form-urlencoded"}
+                 ]
+
+          assert data == ""
+
+          {:ok, 200, [], Jason.encode!(%{customer: %{}, subscription: %{}})}
+        end
+      )
+
+      assert {:ok, %Subscription{}} = Chargebeex.Subscription.reactivate("foobar")
+    end
+
+    test "with params should succeed" do
+      expect(
+        Chargebeex.HTTPClientMock,
+        :post,
+        fn url, data, headers ->
+          assert url ==
+                   "https://test-namespace.chargebee.com/api/v2/subscriptions/foobar/reactivate"
+
+          assert headers == [
+                   {"Authorization", "Basic dGVzdF9jaGFyZ2VlYmVlX2FwaV9rZXk6"},
+                   {"Content-Type", "application/x-www-form-urlencoded"}
+                 ]
+
+          data = String.split(data, "&")
+
+          assert Enum.count(data) == 2
+          assert "trial_end=1717977000" in data
+          assert "billing_cycles=2" in data
+
+          {:ok, 200, [], Jason.encode!(%{customer: %{}, subscription: %{}})}
+        end
+      )
+
+      assert {:ok, %Subscription{}} =
+               Chargebeex.Subscription.reactivate("foobar", %{
+                 trial_end: 1_717_977_000,
+                 billing_cycles: 2
+               })
+    end
+  end
 end
