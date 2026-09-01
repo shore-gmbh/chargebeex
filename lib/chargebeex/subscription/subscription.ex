@@ -185,4 +185,34 @@ defmodule Chargebeex.Subscription do
       opts
     )
   end
+
+  @doc """
+  Cancels a Subscription.
+
+  ## Examples
+
+      iex> Chargebeex.Subscription.cancel("169ljDT1Op0yuxET")
+      {:ok, %Chargebeex.Subscription{
+          id: "169ljDT1Op0yuxET",
+          status: "cancelled",
+          ...
+        }}
+
+      iex> Chargebeex.Subscription.cancel("169ljDT1Op0yuxET", %{end_of_term: true})
+      {:ok, %Chargebeex.Subscription{
+          id: "169ljDT1Op0yuxET",
+          status: "non_renewing",
+          ...
+        }}
+  """
+  def cancel(subscription_id, params \\ %{}, opts \\ []) do
+    generic_action(
+      :post,
+      @resource,
+      "cancel_for_items",
+      subscription_id,
+      params,
+      opts
+    )
+  end
 end
