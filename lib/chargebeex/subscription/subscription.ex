@@ -191,21 +191,27 @@ defmodule Chargebeex.Subscription do
 
   ## Examples
 
-      iex> Chargebeex.Subscription.cancel("169ljDT1Op0yuxET")
+      iex> Chargebeex.Subscription.cancel_for_items("169ljDT1Op0yuxET")
       {:ok, %Chargebeex.Subscription{
           id: "169ljDT1Op0yuxET",
           status: "cancelled",
           ...
         }}
 
-      iex> Chargebeex.Subscription.cancel("169ljDT1Op0yuxET", %{end_of_term: true})
+      iex> Chargebeex.Subscription.cancel_for_items("169ljDT1Op0yuxET", %{end_of_term: true})
       {:ok, %Chargebeex.Subscription{
           id: "169ljDT1Op0yuxET",
           status: "non_renewing",
           ...
         }}
   """
-  def cancel(subscription_id, params \\ %{}, opts \\ []) do
+  def cancel_for_items(subscription_id, params \\ %{}, opts \\ [])
+
+  def cancel_for_items(subscription_id, opts, []) when is_list(opts) do
+    cancel_for_items(subscription_id, %{}, opts)
+  end
+
+  def cancel_for_items(subscription_id, params, opts) when is_map(params) do
     generic_action(
       :post,
       @resource,

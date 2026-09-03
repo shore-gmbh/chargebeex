@@ -555,7 +555,7 @@ defmodule Chargebeex.SubscriptionTest do
     end
   end
 
-  describe "cancel" do
+  describe "cancel_for_items" do
     test "with bad authentication should fail" do
       unauthorized = Common.unauthorized()
 
@@ -577,7 +577,7 @@ defmodule Chargebeex.SubscriptionTest do
         end
       )
 
-      assert {:error, 401, [], ^unauthorized} = Chargebeex.Subscription.cancel("foobar")
+      assert {:error, 401, [], ^unauthorized} = Chargebeex.Subscription.cancel_for_items("foobar")
     end
 
     test "with resource not found should fail" do
@@ -601,7 +601,7 @@ defmodule Chargebeex.SubscriptionTest do
         end
       )
 
-      assert {:error, 404, [], ^not_found} = Chargebeex.Subscription.cancel("foobar")
+      assert {:error, 404, [], ^not_found} = Chargebeex.Subscription.cancel_for_items("foobar")
     end
 
     test "with no params should succeed" do
@@ -623,7 +623,7 @@ defmodule Chargebeex.SubscriptionTest do
         end
       )
 
-      assert {:ok, %Subscription{}} = Chargebeex.Subscription.cancel("foobar")
+      assert {:ok, %Subscription{}} = Chargebeex.Subscription.cancel_for_items("foobar")
     end
 
     test "with params should succeed" do
@@ -650,7 +650,7 @@ defmodule Chargebeex.SubscriptionTest do
       )
 
       assert {:ok, %Subscription{}} =
-               Chargebeex.Subscription.cancel("foobar", %{
+               Chargebeex.Subscription.cancel_for_items("foobar", %{
                  end_of_term: true,
                  cancel_reason_code: "Other"
                })
