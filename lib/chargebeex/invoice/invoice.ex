@@ -96,17 +96,6 @@ defmodule Chargebeex.Invoice do
        }}
   """
   def pdf(id, params \\ %{}, opts \\ []) do
-    path = Chargebeex.Action.resource_path_generic(@resource, id, "pdf")
-
-    case Chargebeex.Client.post(path, params, opts) do
-      {:ok, _status_code, _headers, %{"download" => download}} when is_map(download) ->
-        {:ok, download}
-
-      {:ok, _status_code, _headers, _content} ->
-        {:error, :invalid_response}
-
-      error ->
-        error
-    end
+    generic_action_download(:post, @resource, "pdf", id, params, opts)
   end
 end
