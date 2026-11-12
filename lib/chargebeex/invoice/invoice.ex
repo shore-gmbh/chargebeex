@@ -76,4 +76,26 @@ defmodule Chargebeex.Invoice do
       opts
     )
   end
+
+  @doc """
+  Retrieves a short-lived (~60 minutes) PDF download link for an invoice.
+
+  Chargebee responds with a `download` object rather than an invoice resource,
+  so the raw download map is returned (string keys: `download_url`,
+  `valid_till`, `mime_type`, `object`).
+
+  ## Examples
+
+      iex> Chargebeex.Invoice.pdf("__demo_inv__1", %{disposition_type: "inline"})
+      {:ok,
+       %{
+         "download_url" => "https://…",
+         "valid_till" => 1517505643,
+         "mime_type" => "application/pdf",
+         "object" => "download"
+       }}
+  """
+  def pdf(id, params \\ %{}, opts \\ []) do
+    generic_action_download(:post, @resource, "pdf", id, params, opts)
+  end
 end

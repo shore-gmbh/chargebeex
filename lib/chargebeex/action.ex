@@ -51,6 +51,19 @@ defmodule Chargebeex.Action do
     end
   end
 
+  # Like `generic_action/6`, but for endpoints that respond with a `download`
+  # object instead of a resource (e.g. invoice PDFs). Returns the raw download map.
+  def generic_action_download(verb, resource, action, id, params \\ %{}, opts \\ []) do
+    with path <- resource_path_generic(resource, id, action),
+         {:ok, _status_code, _headers, %{"download" => download}} when is_map(download) <-
+           apply(Client, verb, [path, params, opts]) do
+      {:ok, download}
+    else
+      {:ok, _status_code, _headers, _content} -> {:error, :invalid_response}
+      error -> error
+    end
+  end
+
   def generic_action_without_id(verb, resource, action, params \\ %{}, opts \\ []) do
     with path <- resource_path_generic_without_id(resource, action),
          {:ok, _status_code, _headers, content} <- apply(Client, verb, [path, params, opts]) do
